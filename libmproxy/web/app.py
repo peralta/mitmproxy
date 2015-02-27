@@ -130,7 +130,7 @@ class ReplayFlow(RequestHandler):
 
 
 class FlowContent(RequestHandler):
-    def get(self, flow_id, message):
+    def get(self, flow_id, message, printable):
         message = getattr(self.flow, message)
 
         if not message.content:
@@ -150,12 +150,17 @@ class FlowContent(RequestHandler):
         if not filename:
             filename = self.flow.request.path.split("?")[0].split("/")[-1]
 
-        filename = re.sub(r"[^\w\" \.\-\(\)]", "", filename)
-        cd = "attachment; filename={}".format(filename)
-        self.set_header("Content-Disposition", cd)
-        self.set_header("Content-Type", "application/text")
+        if printable:
+            self.set_header("Content-Type", "text/plain")
+            self.set_header("X-Frame-Options", "SAMEORIGIN")
+        else:
+            filename = re.sub(r"[^\w\" \.\-\(\)]", "", filename)
+            cd = "attachment; filename={}".format(filename)
+            self.set_header("Content-Disposition", cd)
+            self.set_header("Content-Type", "application/text")
+
         self.set_header("X-Content-Type-Options", "nosniff")
-        self.set_header("X-Frame-Options", "DENY")
+
         self.write(message.content)
 
 
@@ -213,7 +218,8 @@ class Application(tornado.web.Application):
             (r"/flows/(?P<flow_id>[0-9a-f\-]+)/duplicate", DuplicateFlow),
             (r"/flows/(?P<flow_id>[0-9a-f\-]+)/replay", ReplayFlow),
             (r"/flows/(?P<flow_id>[0-9a-f\-]+)/revert", RevertFlow),
-            (r"/flows/(?P<flow_id>[0-9a-f\-]+)/(?P<message>request|response)/content", FlowContent),
+#            (r"/flows/(?P<flow_id>[0-9a-f\-]+)/(?P<message>request|response)/content", FlowContent),
+            (r"/flows/(?P<flow_id>[0-9a-f\-]+)/(?P<message>request|response)/content(?P<printable>/printable)?", FlowContent),
             (r"/settings", Settings),
             (r"/clear", ClearAll),
         ]

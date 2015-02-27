@@ -62,6 +62,8 @@ var FlowDetailNav = React.createClass({
     }
 });
 
+
+
 var Headers = React.createClass({
     render: function () {
         var rows = this.props.message.headers.map(function (header, i) {
@@ -91,8 +93,15 @@ var FlowDetailRequest = React.createClass({
             "HTTP/" + flow.request.httpversion.join(".")
         ].join(" ");
         var content = null;
+	var contentUrl = "/flows/" + flow.id + "/request/content";
+	var printableContentUrl = contentUrl + "/printable";
+
         if (flow.request.contentLength > 0) {
-            content = "Request Content Size: " + toputils.formatSize(flow.request.contentLength);
+	    content = 
+		<section>
+  		  <a href={contentUrl} target="new">Download</a>
+		  <iframe src={printableContentUrl} width="100%"></iframe>
+		</section>;
         } else {
             content = <div className="alert alert-info">No Content</div>;
         }
@@ -110,6 +119,7 @@ var FlowDetailRequest = React.createClass({
     }
 });
 
+
 var FlowDetailResponse = React.createClass({
     render: function () {
         var flow = this.props.flow;
@@ -119,8 +129,24 @@ var FlowDetailResponse = React.createClass({
             flow.response.msg
         ].join(" ");
         var content = null;
+	var isPrintable = flowutils.ResponseUtils.isPrintable(flow.response);
+	var contentUrl = "/flows/" + flow.id + "/response/content";
+	var printableContentUrl = contentUrl + "/printable";
+
         if (flow.response.contentLength > 0) {
-            content = "Response Content Size: " + toputils.formatSize(flow.response.contentLength);
+	    if (isPrintable) {
+		content = 
+		    <section>
+		      <a href={contentUrl} target="new">Download</a>
+	              <iframe src={printableContentUrl} width="100%"></iframe> 
+		    </section>;
+		} else {
+		    content = 
+			<section>
+			  "Response Content Size: " + toputils.formatSize(flow.response.contentLength);
+			  <a href={contentUrl} target="new">Download</a>
+		        </section>
+		}
         } else {
             content = <div className="alert alert-info">No Content</div>;
         }
