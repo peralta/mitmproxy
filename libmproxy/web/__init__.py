@@ -147,7 +147,7 @@ class WebMaster(flow.FlowMaster):
         http_server = tornado.httpserver.HTTPServer(self.app)
         http_server.listen(self.options.wport)
 
-        tornado.ioloop.PeriodicCallback(self.tick, 5).start()
+        tornado.ioloop.PeriodicCallback(self.tick, 50).start()
         try:
             iol.start()
         except (Stop, KeyboardInterrupt):
