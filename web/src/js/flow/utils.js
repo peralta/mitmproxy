@@ -34,6 +34,23 @@ var _MessageUtils = {
             }
         }
         return false;
+    },
+    isPrintable: function(message) {
+	var printableTypes = ['text/plain', 
+			      'text/json', 
+			      'application/json',
+			      'application/x-javascript',
+			      'application/javascript',
+			      'text/javascript',
+			      'text/xml',
+			      'text/html',
+			      'text/xhtml'];
+	var contentType = this.getContentType(message).split(' ');
+	if (printableTypes.indexOf(contentType)) {
+	    return true;
+	} else {
+	    return false;
+	}	
     }
 };
 
